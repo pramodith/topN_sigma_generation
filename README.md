@@ -4,6 +4,8 @@ tags:
   - custom_generate
 ---
 ## Overview
+This generation sampling method is based on the paper [Top-N Sigma: A Simple and Effective Sampling Method for Language Models](https://openreview.net/pdf/1e221c8eedaf42558abc5dca4637b3378297582b.pdf).
+
 
 Most output token sampling techniques operate on the probability scores post temperature being applied. The softmax function distorts the underlying logit scores distribution making it hard to know a meaningful top-p/top-k value to set.
 
@@ -35,6 +37,8 @@ This implementation of Top-NSigma requires the user to pass in a new argument `n
 
 We'll use this to filter out tokens whose logit scores are `n_sigma` number of standard deviations below the max logit score.
 
+The authors recommend using `n_sigma=1.0` for most use cases, but you can experiment with values in the range **(0.0, 2√3]**.
+
 ## Output Type changes
 (none)
 
@@ -48,6 +52,17 @@ model = AutoModelForCausalLM.from_pretrained("Qwen/Qwen2.5-0.5B-Instruct", devic
 
 inputs = tokenizer(["The quick brown"], return_tensors="pt").to(model.device)
 # There is a print message hardcoded in the custom generation method
-gen_out = model.generate(**inputs, left_padding=5, custom_generate="Pramodith/topN_sigma_generation", trust_remote_code=True)
+gen_out = model.generate(**inputs, n_sigma=1.0, custom_generate="Pramodith/topN_sigma_generation", trust_remote_code=True)
 print(tokenizer.batch_decode(gen_out)) 
+```
+
+### Citation
+```bibtex
+@inproceedings{tang2025top,
+    title={Top-n𝜎: Eliminating Noise in Logit Space for Robust Token Sampling of LLM},
+    author={Tang, Chenxia and Liu, Jianchun and Xu, Hongli and Huang, Liusheng},
+    booktitle={Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)},
+    pages={10758--10774},
+    year={2025}
+}
 ```

@@ -1,13 +1,13 @@
 import torch
 
-def top_n_sigma_sampling(logits, temperature, n_sigma=4):
+def top_n_sigma_sampling(logits:torch.Tensor, temperature:float, n_sigma:float) -> torch.Tensor:
     """
     Perform topN-sigma sampling on the logits.
     
     Args:
         logits (torch.Tensor): The logits from the model of shape (batch_size, vocab_size).
         temperature (float): The temperature to apply to the logits.
-        n_sigma (int): The number of standard deviations to use for filtering.
+        n_sigma (float): The number of standard deviations to use for filtering.
     
     Returns:
         torch.Tensor: The filtered logits after applying topN-sigma sampling.
@@ -20,7 +20,7 @@ def top_n_sigma_sampling(logits, temperature, n_sigma=4):
     return filtered_logits
 
 @torch.inference_mode()
-def generate(model, input_ids, generation_config=None, n_sigma=4, **kwargs):
+def generate(model, input_ids, generation_config=None, n_sigma:float=1.0, **kwargs):
     """
     Generate text using topN-sigma sampling based on the paper: 
     https://openreview.net/pdf/1e221c8eedaf42558abc5dca4637b3378297582b.pdf
