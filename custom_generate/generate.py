@@ -16,7 +16,7 @@ def top_n_sigma_sampling(logits:torch.Tensor, temperature:float, n_sigma:float) 
     max_logit_score = torch.max(logits, dim=-1, keepdim=True).values
     std = torch.std(logits, dim=-1, keepdim=True)
     threshold = max_logit_score - n_sigma * std
-    filtered_logits = torch.where(logits >= threshold, logits, torch.tensor(float('-inf')))
+    filtered_logits = torch.where(logits >= threshold, logits, torch.full_like(logits, float('-inf')))
     return filtered_logits
 
 @torch.inference_mode()
@@ -39,7 +39,7 @@ def generate(model, input_ids, generation_config=None, n_sigma:float=1.0, **kwar
         input_ids (torch.Tensor): The input tensor of shape (batch_size, sequence_length).
         generation_config (optional): Configuration for generation, such as max_length, pad_token_id,
                                       and max_new_tokens.
-        n_sigma (int): The number of standard deviations to use for topN-sigma sampling.
+        n_sigma (float): The number of standard deviations to use for topN-sigma sampling.
         **kwargs: Additional keyword arguments.
     """    
     generation_config = generation_config or model.generation_config  # default to the model generation config
