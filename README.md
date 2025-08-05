@@ -46,14 +46,24 @@ The authors recommend using `n_sigma=1.0` for most use cases, but you can experi
 
 ```py
 from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import GenerationConfig
 
-tokenizer = AutoTokenizer.from_pretrained("Qwen/Qwen2.5-0.5B-Instruct")
-model = AutoModelForCausalLM.from_pretrained("Qwen/Qwen2.5-0.5B-Instruct", device_map="auto")
+tokenizer = AutoTokenizer.from_pretrained("Qwen/Qwen3-0.6B")
+model = AutoModelForCausalLM.from_pretrained("Qwen/Qwen3-0.6B", device_map="auto")
+generation_config = GenerationConfig(temperature=1.5, max_length=128)
 
-inputs = tokenizer(["The quick brown"], return_tensors="pt").to(model.device)
+messages = [{"role":"user", "content": "Write a story about a dog and cat becoming friends."}]
+text = tokenizer.apply_chat_template(
+    messages,
+    tokenize=False,
+    add_generation_prompt=True,
+    enable_thinking=False # Switches between thinking and non-thinking modes. Default is True.
+)
+model_inputs = tokenizer([text], return_tensors="pt").to(model.device)
 # There is a print message hardcoded in the custom generation method
-gen_out = model.generate(**inputs, n_sigma=1.0, custom_generate="Pramodith/topN_sigma_generation", trust_remote_code=True)
-print(tokenizer.batch_decode(gen_out)) 
+gen_out = model.generate(**model_inputs, n_sigma=1.0, generation_config=generation_config, custom_generate="Pramodith/topN_sigma_generation", trust_remote_code=True)
+
+print(tokenizer.batch_decode(gen_out, skip_special_tokens=True)[0])
 ```
 
 ### Citation
